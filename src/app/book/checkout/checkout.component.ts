@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import {
   FormBuilder,
   FormControl,
@@ -6,7 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { SelectionStateService } from '../../shared/data-access/selection.service';
+import { SelectionStateService, SelectionType } from '../../shared/data-access/selection.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -15,11 +16,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Router } from '@angular/router';
+import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Origin } from '../../shared/interfaces/origin.enum';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), CurrencyPipe],
   imports: [
     MatCardModule,
     MatFormFieldModule,
@@ -40,10 +43,10 @@ import { Router } from '@angular/router';
         
       </mat-card-header>
       <mat-card-content>
-        <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" nelify>
           <mat-form-field appearance="fill">
             <mat-label>Booking Option</mat-label>
-            <mat-select formControlName="bookingOption" required>
+            <mat-select formControlName="bookingOption" required (selectionChange)="onBookingChange()">
               @for (option of selectionState.bookingOptions$(); track option) {
               <mat-option [value]="option">
                 {{ option }}
@@ -70,7 +73,7 @@ import { Router } from '@angular/router';
               matIconSuffix
               [for]="picker"
             ></mat-datepicker-toggle>
-            <mat-date-range-picker #picker></mat-date-range-picker>
+            <mat-date-range-picker #picker ></mat-date-range-picker>
 
             @if (this.checkoutForm.get('range')?.get('start')?.hasError('matStartDateInvalid')) {
             <mat-error>Invalid start date</mat-error>
@@ -78,6 +81,10 @@ import { Router } from '@angular/router';
             <mat-error>Invalid end date</mat-error>
             }
           </mat-form-field>
+
+          @if(price() !== null) {
+            <p class="price">Total Price: $ {{ price() }}</p>
+          }
 
           <mat-form-field appearance="fill">
             <mat-label>Full Name</mat-label>
@@ -137,19 +144,24 @@ import { Router } from '@angular/router';
         flex-direction: column;
         gap: 15px;
       }
+      .price {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #4CAF50;
+      }
     `,
   ],
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm: FormGroup;
   fb = inject(FormBuilder);
   selectionState = inject(SelectionStateService);
   router = inject(Router);
-
-  readonly range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
-})
+  price = signal<string | null>(null);
+  basePrice = signal<string | null>(null);
+  range: FormGroup;
+  rangeSubscription: Subscription | null = null;
+  destroy$ = new Subject<void>();
 
   constructor() {
     this.checkoutForm = this.fb.group({
@@ -169,11 +181,100 @@ export class CheckoutComponent {
       cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
     });
 
+    this.range = this.fb.group({
+      start: [null],
+      end: [null]
+    });
+  }
+
+
+  ngOnInit() {
+    this.rangeSubscription = this.range.valueChanges
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.updatePrice();
+      })
+  }
+
+
+  onDateRangeChange() {
+    this.updatePrice();
+  }
+
+  onBookingChange() {
+    this.updateBasePrice();
+    this.updatePrice();
+  }
+
+  private updateBasePrice() {
+    switch(this.selectionState.selection$().originPage) {
+      case Origin.Adventure:
+        this.price.set((Math.random() * (500 - 1) +1).toFixed(2));
+        break;
+      case Origin.Lodging:
+        this.price.set((Math.random() * (1000 - 1) + 1).toFixed(2));
+        break;
+      case Origin.CuisinePage:
+        this.price.set((Math.random() * (100 - 1) + 1).toFixed(2));
+        break;
+      case Origin.Transportation:
+        this.price.set((Math.random() * (500 - 1) +1).toFixed(2));
+        break;
+    }
+    
+  }
+
+  // private updatePrice() {
+  //   const start = this.range.get('start')?.value;
+  //   const end = this.range.get('end')?.value;
+
+  //   if (start && end ) {
+  //     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24));
+
+  //     let adjustedPrice = Number(this.price()) * days;
+  //     console.log(`Adjusted Price: ${adjustedPrice}`);
+
+  //     this.price.set(adjustedPrice.toFixed(2));
+  //     console.log(`Updating price: ${this.price()}`);
+
+  //   } else {
+  //     this.price.set(null);
+  //   }
+  // }
+
+  private updatePrice() {
+    console.log(`In updatePrice()`)
+    const start = this.range.get('start')?.value;
+    const end = this.range.get('end')?.value;
+    const basePrice = this.price();
+
+    console.log(`start: ${start}, end: ${end}, bp: ${basePrice}`)
+  
+    if (start && end && basePrice) {
+      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24));
+  
+      let adjustedPrice = Number(basePrice) * days;
+      console.log(`Base price: ${basePrice}, Days: ${days}, Adjusted Price: ${adjustedPrice}`);
+  
+      this.price.set(adjustedPrice.toFixed(2));
+      console.log(`Updating price: ${this.price()}`);
+    } 
+    else {
+      return;
+    //   this.price.set(null);
+    }
   }
 
   onSubmit() {
     if (this.checkoutForm.valid) {
       this.router.navigate(['/thank-you/purchase']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

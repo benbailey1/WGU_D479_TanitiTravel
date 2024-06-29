@@ -39,7 +39,7 @@ import { Router } from '@angular/router';
         
       </mat-card-header>
       <mat-card-content>
-        <form [formGroup]="infoForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="infoForm" (ngSubmit)="onSubmit()" nelify>
           <mat-form-field appearance="fill">
             <mat-label>What Do You Want To Know More About?</mat-label>
             <mat-select formControlName="infoOption" required>
