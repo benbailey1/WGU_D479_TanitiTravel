@@ -11,16 +11,39 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background-position: center;
     height: 500px;
     position: relative;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overlay {
+    background-color: rgba(0, 0, 0, 0.1);
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+    // right: 0;
+    // bottom: 0;
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
   }
-  
+
   .main-image h1 {
+    color: #ffffff;
+    font-size: 3rem;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    margin: 0;
+    padding: 20px;
     position: absolute;
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 3rem;
   }
+  // .main-image h1 {
+
+  //   font-size: 3rem;
+  // }
   
   .main-image .search-bar {
     position: absolute;

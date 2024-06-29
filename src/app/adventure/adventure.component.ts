@@ -23,7 +23,9 @@ import { MatDividerModule } from '@angular/material/divider';
   ],
   template: `
     <div class="main-image">
-      <h1>Island Adventures for Everyone</h1>
+      <div class="overlay">
+        <h1>Island Adventures & Experiences</h1>
+      </div>
     </div>
     <div class="cards-container">
       <mat-card class="info-card">
@@ -104,6 +106,37 @@ import { MatDividerModule } from '@angular/material/divider';
     </div>
   `,
   styles: `
+    .main-image {
+      background-image: url('src/assets/adventure.jpg'); //src\assets\tropical-getaway-heli.jpg
+      background-size: cover;
+      background-position: center;
+      height: 500px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+  .overlay {
+      background-color: rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-image h1 {
+      color: #ffffff;
+      font-size: 3rem;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      z-index: 1;
+      margin: 0;
+      padding: 20px;
+    }
     .cards-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);

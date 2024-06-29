@@ -11,7 +11,9 @@ import { RouterLink } from '@angular/router';
   imports: [MatCardModule, MatInputModule, MatButtonModule, MatDividerModule, RouterLink],
   template: `
     <div class="main-image">
-      <h1>TANITI</h1>
+      <div class="overlay">
+        <h1>TANITI</h1> 
+      </div>
       <div class="search-bar">
         <input
           matInput
