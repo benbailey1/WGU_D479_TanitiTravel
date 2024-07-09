@@ -2,12 +2,11 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { SelectionStateService, SelectionType } from '../../shared/data-access/selection.service';
+import { SelectionStateService } from '../../shared/data-access/selection.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -52,9 +51,6 @@ import { Origin } from '../../shared/interfaces/origin.enum';
                 {{ option }}
               </mat-option>
               }
-              <!-- <mat-option *ngFor="let option of selectionState.bookingOptions$()" [value]="option">
-                  {{option}}
-                </mat-option> -->
             </mat-select>
           </mat-form-field>
 
@@ -93,7 +89,7 @@ import { Origin } from '../../shared/interfaces/origin.enum';
 
           <mat-form-field appearance="fill">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" required type="email" />
+            <input matInput formControlName="email" placeholder="Ex. anything@aol.com" required type="email" />
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -101,9 +97,9 @@ import { Origin } from '../../shared/interfaces/origin.enum';
             <input matInput formControlName="phoneNumber" required />
           </mat-form-field>
 
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" hintLabel="Hint: Any number pattern will work">
             <mat-label>Credit Card Number</mat-label>
-            <input matInput formControlName="creditCardNumber" required />
+            <input matInput formControlName="creditCardNumber" placeholder="Ex. 12345" required />
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -118,7 +114,7 @@ import { Origin } from '../../shared/interfaces/origin.enum';
 
           <mat-form-field appearance="fill">
             <mat-label>CVV</mat-label>
-            <input matInput formControlName="cvv" required />
+            <input matInput formControlName="cvv" placeholder="Ex. 999" required />
           </mat-form-field>
 
           <button

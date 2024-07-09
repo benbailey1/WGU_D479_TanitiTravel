@@ -12,7 +12,6 @@ import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Router } from '@angular/router';
 
@@ -58,7 +57,7 @@ import { Router } from '@angular/router';
 
           <mat-form-field appearance="fill">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" required type="email" />
+            <input matInput formControlName="email" placeholder="Ex. anything@aol.com" required type="email" />
           </mat-form-field>
 
           <mat-form-field appearance="fill">
